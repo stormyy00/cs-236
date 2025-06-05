@@ -16,11 +16,12 @@ interface PlatformsProps {
     xboxCount: Array<{ genre: string; count: number }>;
     xboxGameCount: Array<{ gameTitle: string; count: number }>;
     twitterCount: Array<{ topic: string; prediction: string }>;
+    ytTagCount: Array<{ tag: string; count: number }>;
   };
 }
 
 const Platforms = ({ stats }: PlatformsProps) => {
-  const { psCount, psGameCount, xboxCount, xboxGameCount, twitterCount } =
+  const { psCount, psGameCount, xboxCount, xboxGameCount, twitterCount, ytTagCount } =
     stats;
   const platforms = [
     {
@@ -58,6 +59,19 @@ const Platforms = ({ stats }: PlatformsProps) => {
         `Most played: ${xboxGameCount[0]?.gameTitle ?? "-"} (${xboxGameCount[0]?.count?.toLocaleString() ?? 0} players)`,
         `Most popular genre: ${xboxCount[0]?.genre ?? "-"} (${xboxCount[0]?.count?.toLocaleString() ?? 0} games)`,
       ],
+    },
+    {
+      name: "Youtube",
+      icon: <Box />,
+      accentColor: "border-red-400",
+      color: "bg-gradient-to-br from-red-200 to-red-100",
+      textColor: "text-red-800",
+      bgColor: "bg-red-600",
+      stats: {
+        "Top Tag": ytTagCount[0]?.tag || "-",
+        "Unique Videos for Tag": ytTagCount[0]?.count || "-",
+        "Tag Count": ytTagCount.length
+      }
     },
     {
       name: "Twitter",
@@ -121,7 +135,7 @@ const Platforms = ({ stats }: PlatformsProps) => {
             </div>
 
             <div className="space-y-3 mb-6">
-              {platform.features.map((feature, featureIndex) => (
+              {platform.features && platform.features.map((feature, featureIndex) => (
                 <div
                   key={featureIndex}
                   className={`flex items-center ${platform.textColor} opacity-90`}

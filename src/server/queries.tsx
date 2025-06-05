@@ -67,10 +67,22 @@ const twitterCount = async () => {
   }
 };
 
+const popularYtTags = async () => {
+  try {
+    const [rows] = await db.query("SELECT * FROM yt_tags ORDER BY count DESC LIMIT 20");
+
+    return rows || 0;
+  } catch (error) {
+    console.error("Error fetching yt count:", error);
+    throw new Error("Failed to fetch yt count");
+  }
+};
+
 export {
   getPSCount,
   getPSGameCount,
   getXboxCount,
   getXboxGameCount,
   twitterCount,
+  popularYtTags
 };

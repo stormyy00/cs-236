@@ -39,7 +39,6 @@ const TableData = ({ filteredGames }: TableDataProps) => {
               <TableRow>
                 <TableHead>Game</TableHead>
                 <TableHead>Genre</TableHead>
-                <TableHead>Steam</TableHead>
                 <TableHead>PlayStation</TableHead>
                 <TableHead>Xbox</TableHead>
                 <TableHead>Total Players</TableHead>
@@ -55,9 +54,6 @@ const TableData = ({ filteredGames }: TableDataProps) => {
                     <Badge variant="secondary">{game.genre}</Badge>
                   </TableCell>
                   <TableCell>
-                    {game.Steam > 0 ? game.Steam.toLocaleString() : "-"}
-                  </TableCell>
-                  <TableCell>
                     {game.PlayStation > 0
                       ? game.PlayStation.toLocaleString()
                       : "-"}
@@ -67,7 +63,6 @@ const TableData = ({ filteredGames }: TableDataProps) => {
                   </TableCell>
                   <TableCell className="font-medium">
                     {(
-                      game.Steam +
                       game.PlayStation +
                       game.Xbox
                     ).toLocaleString()}

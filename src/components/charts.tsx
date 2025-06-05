@@ -26,7 +26,6 @@ import {
 import { Eye, Filter, TrendingUp, Users } from "lucide-react";
 interface TrendData {
   date: string;
-  Steam: number;
   PlayStation: number;
   Xbox: number;
 }
@@ -75,12 +74,6 @@ const Charts = ({ trends, distribution, users, genre }: ChartsProps) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line
-                type="monotone"
-                dataKey="Steam"
-                stroke="#1b2838"
-                strokeWidth={3}
-              />
               <Line
                 type="monotone"
                 dataKey="PlayStation"

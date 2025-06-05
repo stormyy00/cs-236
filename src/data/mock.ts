@@ -151,14 +151,4 @@ export const platforms = [
       "Cross-Platform Data",
     ],
   },
-  {
-    name: "Steam",
-    color: "bg-gradient-to-br from-slate-700 to-slate-900",
-    bgColor: "bg-slate-700",
-    textColor: "text-slate-100",
-    accentColor: "border-slate-400",
-    icon: "⚡",
-    stats: { users: "130M+", games: "50,000+", revenue: "$6.6B+" },
-    features: ["Workshop Analytics", "Review Sentiment", "Market Insights"],
-  },
 ];

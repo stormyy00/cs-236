@@ -83,7 +83,6 @@ const Dashboard = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Platforms</SelectItem>
-                  <SelectItem value="Steam">Steam</SelectItem>
                   <SelectItem value="PlayStation">PlayStation</SelectItem>
                   <SelectItem value="Xbox">Xbox</SelectItem>
                 </SelectContent>

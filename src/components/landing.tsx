@@ -24,6 +24,7 @@ import {
   getXboxCount,
   getXboxGameCount,
   twitterCount,
+  popularYtTags
 } from "@/server/queries";
 
 // const COLORS = [
@@ -49,7 +50,6 @@ const GameAnalyticsPlatform = () => {
         .includes(searchTerm.toLowerCase());
       const matchesPlatform =
         selectedPlatform === "all" ||
-        (selectedPlatform === "Steam" && game.Steam > 0) ||
         (selectedPlatform === "PlayStation" && game.PlayStation > 0) ||
         (selectedPlatform === "Xbox" && game.Xbox > 0);
       const matchesGenre =
@@ -62,8 +62,8 @@ const GameAnalyticsPlatform = () => {
       let aVal, bVal;
       switch (sortBy) {
         case "players":
-          aVal = a.Steam + a.PlayStation + a.Xbox;
-          bVal = b.Steam + b.PlayStation + b.Xbox;
+          aVal = a.PlayStation + a.Xbox;
+          bVal = b.PlayStation + b.Xbox;
           break;
         case "rating":
           aVal = a.rating;
@@ -99,23 +99,20 @@ const GameAnalyticsPlatform = () => {
   const platformDistribution = useMemo(() => {
     const totals = mockData.topGames.reduce(
       (acc, game) => {
-        acc.Steam += game.Steam;
         acc.PlayStation += game.PlayStation;
         acc.Xbox += game.Xbox;
         return acc;
       },
-      { Steam: 0, PlayStation: 0, Xbox: 0 },
+      { PlayStation: 0, Xbox: 0 },
     );
 
     return Object.entries(totals).map(([platform, value]) => ({
       name: platform,
       value,
       color:
-        platform === "Steam"
-          ? "#1b2838"
-          : platform === "PlayStation"
-            ? "#003087"
-            : "#107c10",
+        platform === "PlayStation"
+          ? "#003087"
+          : "#107c10",
     }));
   }, []);
 
@@ -125,6 +122,7 @@ const GameAnalyticsPlatform = () => {
     xboxCount: 0,
     xboxGameCount: 0,
     twitterCount: 0,
+    ytTagCount: 0,
   });
   const [loading, setLoading] = useState(true);
   console.log("Loading stats:", stats);
@@ -136,14 +134,16 @@ const GameAnalyticsPlatform = () => {
       getXboxCount(),
       getXboxGameCount(),
       twitterCount(),
+      popularYtTags()
     ])
-      .then(([psCount, psGameCount, xboxCount, xboxGameCount, twitter]) => {
+      .then(([psCount, psGameCount, xboxCount, xboxGameCount, twitter, ytTags]) => {
         setStats({
           psCount: psCount,
           psGameCount: psGameCount,
           xboxCount: xboxCount,
           xboxGameCount: xboxGameCount,
           twitterCount: twitter,
+          ytTagCount: ytTags
         });
         console.log("All queries loaded successfully");
         setLoading(false);
@@ -153,6 +153,7 @@ const GameAnalyticsPlatform = () => {
         setLoading(false);
       });
   }, []);
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -167,7 +168,7 @@ const GameAnalyticsPlatform = () => {
         </h1>
 
         <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
-          Unlock deep insights across PlayStation, Xbox, and Steam. Transform
+          Unlock deep insights across PlayStation and Xbox. Transform
           player data into strategic advantage with our unified analytics
           platform.
         </p>

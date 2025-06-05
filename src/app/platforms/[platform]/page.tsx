@@ -1,5 +1,4 @@
 import PlayStationAnalytics from "@/components/dynamic/playstation";
-import SteamAnalytics from "@/components/dynamic/steam";
 import XboxAnalytics from "@/components/dynamic/xbox";
 import React from "react";
 
@@ -14,9 +13,6 @@ const Page = ({ params }: props) => {
   switch (platform) {
     case "playstation":
       AnalyticsComponent = <PlayStationAnalytics />;
-      break;
-    case "steam":
-      AnalyticsComponent = <SteamAnalytics />;
       break;
     case "xbox":
       AnalyticsComponent = <XboxAnalytics />;
