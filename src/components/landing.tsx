@@ -36,65 +36,72 @@ import {
 // ];
 
 const GameAnalyticsPlatform = () => {
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("all");
   const [selectedGenre, setSelectedGenre] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("players");
   const [sortOrder, setSortOrder] = useState("desc");
 
-  const filteredGames = useMemo(() => {
-    const filtered = mockData.topGames.filter((game) => {
-      const matchesSearch = game.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchesPlatform =
-        selectedPlatform === "all" ||
-        (selectedPlatform === "Steam" && game.Steam > 0) ||
-        (selectedPlatform === "PlayStation" && game.PlayStation > 0) ||
-        (selectedPlatform === "Xbox" && game.Xbox > 0);
-      const matchesGenre =
-        selectedGenre === "all" || game.genre === selectedGenre;
-      return matchesSearch && matchesPlatform && matchesGenre;
-    });
+  const [stats, setStats] = useState({
+    psCount: 0,
+    psGameCount: 0,
+    xboxCount: 0,
+    xboxGameCount: 0,
+    twitterCount: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const { twitterCount } = stats;
 
-    // Sort
-    filtered.sort((a, b) => {
-      let aVal, bVal;
-      switch (sortBy) {
-        case "players":
-          aVal = a.Steam + a.PlayStation + a.Xbox;
-          bVal = b.Steam + b.PlayStation + b.Xbox;
-          break;
-        case "rating":
-          aVal = a.rating;
-          bVal = b.rating;
-          break;
-        case "revenue":
-          aVal = a.revenue;
-          bVal = b.revenue;
-          break;
-        default:
-          aVal = a.name;
-          bVal = b.name;
-      }
+  // Filter PlayStation genres by search/genre
+  // const filteredPsCount = useMemo(() =>
+  //   stats.psCount.filter(
+  //     (row) =>
+  //       (selectedGenre === "all" || row.genre?.toLowerCase().includes(selectedGenre.toLowerCase())) &&
+  //       (searchTerm === "" || row.genre?.toLowerCase().includes(searchTerm.toLowerCase()))
+  //   ), [stats.psCount, selectedGenre, searchTerm]
+  // );
 
-      if (sortOrder === "desc") {
-        if (typeof aVal === "string" && typeof bVal === "string") {
-          return bVal.localeCompare(aVal);
-        } else {
-          return (bVal as number) - (aVal as number);
-        }
-      } else {
-        if (typeof aVal === "string" && typeof bVal === "string") {
-          return aVal.localeCompare(bVal);
-        } else {
-          return (aVal as number) - (bVal as number);
-        }
-      }
-    });
+  // // Filter PlayStation games by search/genre
+  // const filteredPsGameCount = useMemo(() =>
+  //   stats.psGameCount.filter(
+  //     (row) =>
+  //       (selectedGenre === "all" || row.gameTitle?.toLowerCase().includes(selectedGenre.toLowerCase())) &&
+  //       (searchTerm === "" || row.gameTitle?.toLowerCase().includes(searchTerm.toLowerCase()))
+  //   ), [stats.psGameCount, selectedGenre, searchTerm]
+  // );
 
-    return filtered;
-  }, [searchTerm, selectedPlatform, selectedGenre, sortBy, sortOrder]);
+  // // Filter Xbox genres by search/genre
+  // const filteredXboxCount = useMemo(() =>
+  //   stats.xboxCount.filter(
+  //     (row) =>
+  //       (selectedGenre === "all" || row.genre?.toLowerCase().includes(selectedGenre.toLowerCase())) &&
+  //       (searchTerm === "" || row.genre?.toLowerCase().includes(searchTerm.toLowerCase()))
+  //   ), [stats.xboxCount, selectedGenre, searchTerm]
+  // );
+
+  // // Filter Xbox games by search/genre
+  // const filteredXboxGameCount = useMemo(() =>
+  //   stats.xboxGameCount.filter(
+  //     (row) =>
+  //       (selectedGenre === "all" || row.gameTitle?.toLowerCase().includes(selectedGenre.toLowerCase())) &&
+  //       (searchTerm === "" || row.gameTitle?.toLowerCase().includes(searchTerm.toLowerCase()))
+  //   ), [stats.xboxGameCount, selectedGenre, searchTerm]
+  // );
+
+  // // Filter Twitter topics by search
+  // const filteredTwitterCount = useMemo(() =>
+  //   stats.twitterCount.filter(
+  //     (row) =>
+  //       (searchTerm === "" ||
+  //         row.topic?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //         row.combined_text?.toLowerCase().includes(searchTerm.toLowerCase()))
+  //   ), [stats.twitterCount, searchTerm]
+  // );
+
+  // // Conditionally show each platform's tables based on selectedPlatform
+  // const showPlayStation = selectedPlatform === "all" || selectedPlatform === "PlayStation";
+  // const showXbox = selectedPlatform === "all" || selectedPlatform === "Xbox";
+  // const showTwitter = selectedPlatform === "all" || selectedPlatform === "Twitter";
 
   const platformDistribution = useMemo(() => {
     const totals = mockData.topGames.reduce(
@@ -119,14 +126,6 @@ const GameAnalyticsPlatform = () => {
     }));
   }, []);
 
-  const [stats, setStats] = useState({
-    psCount: 0,
-    psGameCount: 0,
-    xboxCount: 0,
-    xboxGameCount: 0,
-    twitterCount: 0,
-  });
-  const [loading, setLoading] = useState(true);
   console.log("Loading stats:", stats);
   useEffect(() => {
     setLoading(true);
@@ -261,7 +260,7 @@ const GameAnalyticsPlatform = () => {
               setSortBy={setSortBy}
               sortOrder={sortOrder}
               setSortOrder={setSortOrder}
-              filteredGames={filteredGames}
+              stats={stats}
             />
           </TabsContent>
         </Tabs>

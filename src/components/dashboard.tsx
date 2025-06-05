@@ -16,8 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Table from "./table";
+
 import { Game } from "@/types";
+import { PlayStationTables } from "./tablee";
+import { XboxTables } from "./tablee";
+import { TwitterTable } from "./tablee";
 
 type DashboardProps = {
   searchTerm: string;
@@ -44,7 +47,10 @@ const Dashboard = ({
   setSortBy,
   sortOrder,
   setSortOrder,
-  filteredGames,
+  stats,
+  showPlayStation = true,
+  showXbox = true,
+  showTwitter = true,
 }: DashboardProps) => {
   return (
     <>
@@ -135,7 +141,18 @@ const Dashboard = ({
         </CardContent>
       </Card>
 
-      <Table filteredGames={filteredGames} />
+      {/* <Table filteredGames={filteredGames} /> */}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <PlayStationTables
+          psCount={stats.psCount}
+          psGameCount={stats.psGameCount}
+        />
+        <XboxTables
+          xboxCount={stats.xboxCount}
+          xboxGameCount={stats.xboxGameCount}
+        />
+        <TwitterTable twitterCount={stats.twitterCount} />
+      </div>
     </>
   );
 };
