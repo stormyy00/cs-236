@@ -5,12 +5,79 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowRight, Zap } from "lucide-react";
+import { ArrowRight, Zap, Gamepad2, Twitter, Box } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { platforms } from "@/data/mock";
 
-const Platforms = () => {
+interface PlatformsProps {
+  stats: {
+    psCount: Array<{ genre: string; count: number }>;
+    psGameCount: Array<{ gameTitle: string; count: number }>;
+    xboxCount: Array<{ genre: string; count: number }>;
+    xboxGameCount: Array<{ gameTitle: string; count: number }>;
+    twitterCount: Array<{ topic: string; prediction: string }>;
+  };
+}
+
+const Platforms = ({ stats }: PlatformsProps) => {
+  const { psCount, psGameCount, xboxCount, xboxGameCount, twitterCount } =
+    stats;
+  const platforms = [
+    {
+      name: "PlayStation",
+      icon: <Gamepad2 />,
+      accentColor: "border-indigo-400",
+      color: "bg-gradient-to-br from-indigo-200 to-indigo-100",
+      textColor: "text-indigo-800",
+      bgColor: "bg-indigo-600",
+      stats: {
+        "Top Genre": psCount[0]?.genre || "-",
+        "Top Game": psGameCount[0]?.gameTitle || "-",
+        "Game Count": psGameCount.length,
+        "Genre Count": psCount.length,
+      },
+      features: [
+        `Most played: ${psGameCount[0]?.gameTitle ?? "-"} (${psGameCount[0]?.count?.toLocaleString() ?? 0} players)`,
+        `Most popular genre: ${psCount[0]?.genre ?? "-"} (${psCount[0]?.count?.toLocaleString() ?? 0} games)`,
+      ],
+    },
+    {
+      name: "Xbox",
+      icon: <Box />,
+      accentColor: "border-green-400",
+      color: "bg-gradient-to-br from-green-200 to-green-100",
+      textColor: "text-green-800",
+      bgColor: "bg-green-600",
+      stats: {
+        "Top Genre": xboxCount[0]?.genre || "-",
+        "Top Game": xboxGameCount[0]?.gameTitle || "-",
+        "Game Count": xboxGameCount.length,
+        "Genre Count": xboxCount.length,
+      },
+      features: [
+        `Most played: ${xboxGameCount[0]?.gameTitle ?? "-"} (${xboxGameCount[0]?.count?.toLocaleString() ?? 0} players)`,
+        `Most popular genre: ${xboxCount[0]?.genre ?? "-"} (${xboxCount[0]?.count?.toLocaleString() ?? 0} games)`,
+      ],
+    },
+    {
+      name: "Twitter",
+      icon: <Twitter />,
+      accentColor: "border-blue-400",
+      color: "bg-gradient-to-br from-blue-200 to-blue-100",
+      textColor: "text-blue-800",
+      bgColor: "bg-blue-600",
+      stats: {
+        "Topics Analyzed": twitterCount.length,
+        "Top Topic": twitterCount[0]?.topic || "-",
+        "Top Prediction": twitterCount[0]?.prediction ?? "-",
+      },
+      features: [
+        `Most discussed topic: ${twitterCount[0]?.topic ?? "-"}`,
+        `Top prediction: ${twitterCount[0]?.prediction ?? "-"}`,
+      ],
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
       {platforms.map((platform, index) => (
@@ -38,7 +105,7 @@ const Platforms = () => {
           </CardHeader>
 
           <CardContent className="relative z-10">
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-4 mb-6">
               {Object.entries(platform.stats).map(([key, value]) => (
                 <div key={key} className="text-center">
                   <div className={`text-xl font-bold ${platform.textColor}`}>

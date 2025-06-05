@@ -18,7 +18,13 @@ import StatCard from "./statistics";
 import { mockData } from "@/data/mock";
 import Platforms from "./platforms";
 import { Button } from "./ui/button";
-import { getVideo } from "@/server/queries";
+import {
+  getPSCount,
+  getPSGameCount,
+  getXboxCount,
+  getXboxGameCount,
+  twitterCount,
+} from "@/server/queries";
 
 // const COLORS = [
 //   "#8884d8",
@@ -113,13 +119,38 @@ const GameAnalyticsPlatform = () => {
     }));
   }, []);
 
+  const [stats, setStats] = useState({
+    psCount: 0,
+    psGameCount: 0,
+    xboxCount: 0,
+    xboxGameCount: 0,
+    twitterCount: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  console.log("Loading stats:", stats);
   useEffect(() => {
-    getVideo()
-      .then((data) => {
-        console.log("query:", data);
+    setLoading(true);
+    Promise.all([
+      getPSCount(),
+      getPSGameCount(),
+      getXboxCount(),
+      getXboxGameCount(),
+      twitterCount(),
+    ])
+      .then(([psCount, psGameCount, xboxCount, xboxGameCount, twitter]) => {
+        setStats({
+          psCount: psCount,
+          psGameCount: psGameCount,
+          xboxCount: xboxCount,
+          xboxGameCount: xboxGameCount,
+          twitterCount: twitter,
+        });
+        console.log("All queries loaded successfully");
+        setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching video:", error);
+        console.error("Error fetching data:", error);
+        setLoading(false);
       });
   }, []);
 
@@ -178,7 +209,7 @@ const GameAnalyticsPlatform = () => {
             <TabsTrigger value="explorer">Data Explorer</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
-            <Platforms />
+            <Platforms stats={stats} />
             {/* Stats Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <StatCard
