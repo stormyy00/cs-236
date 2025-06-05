@@ -23,17 +23,25 @@ import { XboxTables } from "./table";
 import { TwitterTable } from "./table";
 
 type DashboardProps = {
-  searchTerm: string;
-  setSearchTerm: (value: string) => void;
-  selectedPlatform: string;
-  setSelectedPlatform: (value: string) => void;
-  selectedGenre: string;
-  setSelectedGenre: (value: string) => void;
-  sortBy: string;
-  setSortBy: (value: string) => void;
-  sortOrder: string;
-  setSortOrder: (value: string) => void;
-  filteredGames: Game[];
+  stats: {
+    psCount: any[];
+    psGameCount: any[];
+    xboxCount: any[];
+    xboxGameCount: any[];
+    twitterCount: any[];
+    ytTagCount: any[];
+  };
+  searchTerm?: string;
+  setSearchTerm?: (value: string) => void;
+  selectedPlatform?: string;
+  setSelectedPlatform?: (value: string) => void;
+  selectedGenre?: string;
+  setSelectedGenre?: (value: string) => void;
+  sortBy?: string;
+  setSortBy?: (value: string) => void;
+  sortOrder?: string;
+  setSortOrder?: (value: string) => void;
+  filteredGames?: Game[];
 };
 
 const Dashboard = ({ stats }: DashboardProps) => {
