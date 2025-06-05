@@ -10,11 +10,6 @@ export const ITEMS = [
     color: "bg-gradient-to-br from-green-600 to-green-800",
   },
   {
-    name: "Steam",
-    href: "/platforms/steam",
-    color: "bg-gradient-to-br from-gray-800 to-gray-900",
-  },
-  {
     name: "Youtube",
     href: "/youtube",
     color: "bg-gradient-to-br from-red-600 to-red-800",

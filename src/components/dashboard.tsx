@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 
 import { Search, Filter } from "lucide-react";
 import {
@@ -18,9 +18,9 @@ import {
 } from "@/components/ui/select";
 
 import { Game } from "@/types";
-import { PlayStationTables } from "./tablee";
-import { XboxTables } from "./tablee";
-import { TwitterTable } from "./tablee";
+import { PlayStationTables, YoutubeTable } from "./table";
+import { XboxTables } from "./table";
+import { TwitterTable } from "./table";
 
 type DashboardProps = {
   searchTerm: string;
@@ -36,24 +36,113 @@ type DashboardProps = {
   filteredGames: Game[];
 };
 
-const Dashboard = ({
-  searchTerm,
-  setSearchTerm,
-  selectedPlatform,
-  setSelectedPlatform,
-  selectedGenre,
-  setSelectedGenre,
-  sortBy,
-  setSortBy,
-  sortOrder,
-  setSortOrder,
-  stats,
-  showPlayStation = true,
-  showXbox = true,
-  showTwitter = true,
-}: DashboardProps) => {
+const Dashboard = ({ stats }: DashboardProps) => {
+  // Controls
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPlatform, setSelectedPlatform] = useState("all");
+  const [selectedGenre, setSelectedGenre] = useState("all");
+
+  // Filtering logic for each platform
+
+  // PlayStation Genres
+  const filteredPsCount = useMemo(
+    () =>
+      Array.isArray(stats.psCount)
+        ? stats.psCount.filter(
+            (row) =>
+              (selectedGenre === "all" ||
+                row.genre
+                  ?.toLowerCase()
+                  .includes(selectedGenre.toLowerCase())) &&
+              (searchTerm === "" ||
+                row.genre?.toLowerCase().includes(searchTerm.toLowerCase())),
+          )
+        : [],
+    [stats.psCount, selectedGenre, searchTerm],
+  );
+
+  // PlayStation Games
+  const filteredPsGameCount = useMemo(
+    () =>
+      (stats.psGameCount ?? []).filter(
+        (row) =>
+          (selectedGenre === "all" ||
+            row.gameTitle
+              ?.toLowerCase()
+              .includes(selectedGenre.toLowerCase())) &&
+          (searchTerm === "" ||
+            row.gameTitle?.toLowerCase().includes(searchTerm.toLowerCase())),
+      ),
+    [stats.psGameCount, selectedGenre, searchTerm],
+  );
+
+  // Xbox Genres
+  const filteredXboxCount = useMemo(
+    () =>
+      (stats.xboxCount ?? []).filter(
+        (row) =>
+          (selectedGenre === "all" ||
+            row.genre?.toLowerCase().includes(selectedGenre.toLowerCase())) &&
+          (searchTerm === "" ||
+            row.genre?.toLowerCase().includes(searchTerm.toLowerCase())),
+      ),
+    [stats.xboxCount, selectedGenre, searchTerm],
+  );
+
+  // Xbox Games
+  const filteredXboxGameCount = useMemo(
+    () =>
+      (stats.xboxGameCount ?? []).filter(
+        (row) =>
+          (selectedGenre === "all" ||
+            row.gameTitle
+              ?.toLowerCase()
+              .includes(selectedGenre.toLowerCase())) &&
+          (searchTerm === "" ||
+            row.gameTitle?.toLowerCase().includes(searchTerm.toLowerCase())),
+      ),
+    [stats.xboxGameCount, selectedGenre, searchTerm],
+  );
+
+  // Twitter
+  const filteredTwitterCount = useMemo(
+    () =>
+      Array.isArray(stats.twitterCount)
+        ? stats.twitterCount.filter(
+            (row: any) =>
+              searchTerm === "" ||
+              row.topic?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              row.combined_text
+                ?.toLowerCase()
+                .includes(searchTerm.toLowerCase()),
+          )
+        : [],
+    [stats.twitterCount, searchTerm],
+  );
+
+  // YouTube
+  const filteredYoutubeCoun = useMemo(
+    () =>
+      Array.isArray(stats.ytTagCount)
+        ? stats.ytTagCount.filter(
+            (row: any) =>
+              searchTerm === "" ||
+              row.tag?.toLowerCase().includes(searchTerm.toLowerCase()),
+          )
+        : [],
+    [stats.ytTagCount, searchTerm],
+  );
+
+  const showPlayStation =
+    selectedPlatform === "all" || selectedPlatform === "PlayStation";
+  const showXbox = selectedPlatform === "all" || selectedPlatform === "Xbox";
+  const showTwitter =
+    selectedPlatform === "all" || selectedPlatform === "Twitter";
+  const showYoutube =
+    selectedPlatform === "all" || selectedPlatform === "Youtube";
   return (
     <>
+      {/* --- Toolbar --- */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -89,9 +178,10 @@ const Dashboard = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Platforms</SelectItem>
-                  <SelectItem value="Steam">Steam</SelectItem>
                   <SelectItem value="PlayStation">PlayStation</SelectItem>
                   <SelectItem value="Xbox">Xbox</SelectItem>
+                  <SelectItem value="Twitter">Twitter</SelectItem>
+                  <SelectItem value="Youtube">Youtube</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -111,47 +201,25 @@ const Dashboard = ({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Sort By</label>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="players">Total Players</SelectItem>
-                  <SelectItem value="rating">Rating</SelectItem>
-                  <SelectItem value="revenue">Revenue</SelectItem>
-                  <SelectItem value="name">Name</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Order</label>
-              <Select value={sortOrder} onValueChange={setSortOrder}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Order" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="desc">Descending</SelectItem>
-                  <SelectItem value="asc">Ascending</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* <Table filteredGames={filteredGames} /> */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <PlayStationTables
-          psCount={stats.psCount}
-          psGameCount={stats.psGameCount}
-        />
-        <XboxTables
-          xboxCount={stats.xboxCount}
-          xboxGameCount={stats.xboxGameCount}
-        />
-        <TwitterTable twitterCount={stats.twitterCount} />
+        {showPlayStation && (
+          <PlayStationTables
+            psCount={filteredPsCount}
+            psGameCount={filteredPsGameCount}
+          />
+        )}
+        {showXbox && (
+          <XboxTables
+            xboxCount={filteredXboxCount}
+            xboxGameCount={filteredXboxGameCount}
+          />
+        )}
+        {showTwitter && <TwitterTable twitterCount={filteredTwitterCount} />}
+        {showYoutube && <YoutubeTable youtubeTag={filteredYoutubeCoun} />}
       </div>
     </>
   );

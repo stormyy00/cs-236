@@ -16,12 +16,19 @@ interface PlatformsProps {
     xboxCount: Array<{ genre: string; count: number }>;
     xboxGameCount: Array<{ gameTitle: string; count: number }>;
     twitterCount: Array<{ topic: string; prediction: string }>;
+    ytTagCount: Array<{ tag: string; count: number }>;
   };
 }
 
 const Platforms = ({ stats }: PlatformsProps) => {
-  const { psCount, psGameCount, xboxCount, xboxGameCount, twitterCount } =
-    stats;
+  const {
+    psCount,
+    psGameCount,
+    xboxCount,
+    xboxGameCount,
+    twitterCount,
+    ytTagCount,
+  } = stats;
   const platforms = [
     {
       name: "PlayStation",
@@ -60,6 +67,19 @@ const Platforms = ({ stats }: PlatformsProps) => {
       ],
     },
     {
+      name: "Youtube",
+      icon: <Box />,
+      accentColor: "border-red-400",
+      color: "bg-gradient-to-br from-red-200 to-red-100",
+      textColor: "text-red-800",
+      bgColor: "bg-red-600",
+      stats: {
+        "Top Tag": ytTagCount[0]?.tag || "-",
+        "Unique Videos for Tag": ytTagCount[0]?.count || "-",
+        "Tag Count": ytTagCount.length,
+      },
+    },
+    {
       name: "Twitter",
       icon: <Twitter />,
       accentColor: "border-blue-400",
@@ -83,22 +103,22 @@ const Platforms = ({ stats }: PlatformsProps) => {
       {platforms.map((platform, index) => (
         <Card
           key={index}
-          className={`relative overflow-hidden border-2 ${platform.accentColor} ${platform.color} backdrop-blur-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl group cursor-pointer`}
+          className={`relative overflow-hidden border-2 ${platform.accentColor} ${platform.color} backdrop-blur-lg transition-all duration-500  group cursor-pointer`}
           style={{ animationDelay: `${index * 200}ms` }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           <CardHeader className="relative z-10 pb-4">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-4xl">{platform.icon}</div>
+              <div className="text-3xl">{platform.icon}</div>
             </div>
             <CardTitle
-              className={`text-3xl font-bold ${platform.textColor} mb-2`}
+              className={`text-2xl font-bold ${platform.textColor} mb-2`}
             >
               {platform.name}
             </CardTitle>
             <CardDescription
-              className={`${platform.textColor} opacity-90 text-base`}
+              className={`${platform.textColor} opacity-90 text-sm`}
             >
               Advanced analytics and insights for {platform.name} ecosystem
             </CardDescription>
@@ -108,7 +128,7 @@ const Platforms = ({ stats }: PlatformsProps) => {
             <div className="grid grid-cols-2 gap-4 mb-6">
               {Object.entries(platform.stats).map(([key, value]) => (
                 <div key={key} className="text-center">
-                  <div className={`text-xl font-bold ${platform.textColor}`}>
+                  <div className={`text-lg font-bold ${platform.textColor}`}>
                     {value}
                   </div>
                   <div
@@ -121,19 +141,20 @@ const Platforms = ({ stats }: PlatformsProps) => {
             </div>
 
             <div className="space-y-3 mb-6">
-              {platform.features.map((feature, featureIndex) => (
-                <div
-                  key={featureIndex}
-                  className={`flex items-center ${platform.textColor} opacity-90`}
-                >
-                  <Zap className="w-4 h-4 mr-3 text-yellow-400" />
-                  <span>{feature}</span>
-                </div>
-              ))}
+              {platform.features &&
+                platform.features.map((feature, featureIndex) => (
+                  <div
+                    key={featureIndex}
+                    className={`flex items-center ${platform.textColor} opacity-90`}
+                  >
+                    <Zap className="w-4 h-4 mr-3 text-yellow-400" />
+                    <span className="text-sm">{feature}</span>
+                  </div>
+                ))}
             </div>
 
             <Button
-              className={`w-full ${platform.bgColor} hover:bg-opacity-80 text-white border-0 py-3 rounded-lg transition-all duration-300 transform group-hover:scale-105`}
+              className={`w-full ${platform.bgColor} hover:bg-opacity-80 text-white border-0 py-3 rounded-lg transition-all duration-300 transform`}
             >
               Explore {platform.name}
               <ArrowRight className="w-4 h-4 ml-2" />

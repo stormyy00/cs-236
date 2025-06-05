@@ -24,10 +24,16 @@ const twitterCountColumns = [
   { accessorKey: "combined_text", header: "Text" },
 ];
 
+const youtubeCountColumns = [
+  { accessorKey: "tag", header: "Tag" },
+  { accessorKey: "count", header: "Count" },
+];
+
 export {
   psCountColumns,
   psGameCountColumns,
   xboxCountColumns,
   xboxGameCountColumns,
   twitterCountColumns,
+  youtubeCountColumns,
 };

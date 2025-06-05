@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useMemo, useEffect } from "react";
 import {
   TrendingUp,
@@ -23,6 +24,7 @@ import {
   getPSGameCount,
   getXboxCount,
   getXboxGameCount,
+  popularYtTags,
   twitterCount,
 } from "@/server/queries";
 
@@ -36,95 +38,54 @@ import {
 // ];
 
 const GameAnalyticsPlatform = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPlatform, setSelectedPlatform] = useState("all");
-  const [selectedGenre, setSelectedGenre] = useState("all");
-  const [sortBy, setSortBy] = useState("players");
-  const [sortOrder, setSortOrder] = useState("desc");
-
   const [stats, setStats] = useState({
     psCount: 0,
     psGameCount: 0,
     xboxCount: 0,
     xboxGameCount: 0,
     twitterCount: 0,
+    ytTagCount: 0,
   });
   const [loading, setLoading] = useState(true);
-  const { twitterCount } = stats;
 
-  // Filter PlayStation genres by search/genre
-  // const filteredPsCount = useMemo(() =>
-  //   stats.psCount.filter(
-  //     (row) =>
-  //       (selectedGenre === "all" || row.genre?.toLowerCase().includes(selectedGenre.toLowerCase())) &&
-  //       (searchTerm === "" || row.genre?.toLowerCase().includes(searchTerm.toLowerCase()))
-  //   ), [stats.psCount, selectedGenre, searchTerm]
-  // );
-
-  // // Filter PlayStation games by search/genre
-  // const filteredPsGameCount = useMemo(() =>
-  //   stats.psGameCount.filter(
-  //     (row) =>
-  //       (selectedGenre === "all" || row.gameTitle?.toLowerCase().includes(selectedGenre.toLowerCase())) &&
-  //       (searchTerm === "" || row.gameTitle?.toLowerCase().includes(searchTerm.toLowerCase()))
-  //   ), [stats.psGameCount, selectedGenre, searchTerm]
-  // );
-
-  // // Filter Xbox genres by search/genre
-  // const filteredXboxCount = useMemo(() =>
-  //   stats.xboxCount.filter(
-  //     (row) =>
-  //       (selectedGenre === "all" || row.genre?.toLowerCase().includes(selectedGenre.toLowerCase())) &&
-  //       (searchTerm === "" || row.genre?.toLowerCase().includes(searchTerm.toLowerCase()))
-  //   ), [stats.xboxCount, selectedGenre, searchTerm]
-  // );
-
-  // // Filter Xbox games by search/genre
-  // const filteredXboxGameCount = useMemo(() =>
-  //   stats.xboxGameCount.filter(
-  //     (row) =>
-  //       (selectedGenre === "all" || row.gameTitle?.toLowerCase().includes(selectedGenre.toLowerCase())) &&
-  //       (searchTerm === "" || row.gameTitle?.toLowerCase().includes(searchTerm.toLowerCase()))
-  //   ), [stats.xboxGameCount, selectedGenre, searchTerm]
-  // );
-
-  // // Filter Twitter topics by search
-  // const filteredTwitterCount = useMemo(() =>
-  //   stats.twitterCount.filter(
-  //     (row) =>
-  //       (searchTerm === "" ||
-  //         row.topic?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         row.combined_text?.toLowerCase().includes(searchTerm.toLowerCase()))
-  //   ), [stats.twitterCount, searchTerm]
-  // );
-
-  // // Conditionally show each platform's tables based on selectedPlatform
-  // const showPlayStation = selectedPlatform === "all" || selectedPlatform === "PlayStation";
-  // const showXbox = selectedPlatform === "all" || selectedPlatform === "Xbox";
-  // const showTwitter = selectedPlatform === "all" || selectedPlatform === "Twitter";
-
-  const platformDistribution = useMemo(() => {
-    const totals = mockData.topGames.reduce(
-      (acc, game) => {
-        acc.Steam += game.Steam;
-        acc.PlayStation += game.PlayStation;
-        acc.Xbox += game.Xbox;
-        return acc;
-      },
-      { Steam: 0, PlayStation: 0, Xbox: 0 },
-    );
-
-    return Object.entries(totals).map(([platform, value]) => ({
-      name: platform,
-      value,
-      color:
-        platform === "Steam"
-          ? "#1b2838"
-          : platform === "PlayStation"
-            ? "#003087"
-            : "#107c10",
+  const trends = useMemo(() => {
+    if (!Array.isArray(stats.psCount) || !Array.isArray(stats.xboxCount))
+      return [];
+    return stats.psCount.map((row, idx) => ({
+      date: row.genre,
+      PlayStation: row.count,
+      Xbox: stats.xboxCount[idx]?.count ?? 0,
     }));
-  }, []);
+  }, [stats.psCount, stats.xboxCount]);
+
+  const distribution = [
+    {
+      name: "PlayStation",
+      value: Array.isArray(stats.psCount)
+        ? stats.psCount.reduce((acc, row) => acc + (row.count ?? 0), 0)
+        : 0,
+      color: "#003087",
+    },
+    {
+      name: "Xbox",
+      value: Array.isArray(stats.xboxCount)
+        ? stats.xboxCount.reduce((acc, row) => acc + (row.count ?? 0), 0)
+        : 0,
+      color: "#107c10",
+    },
+  ];
+
+  const users = Array.from({ length: 7 }).map((_, i) => ({
+    date: `Day ${i + 1}`,
+    users: 1000000 + Math.floor(Math.random() * 100000),
+  }));
+
+  const genre = Array.isArray(stats.psCount)
+    ? stats.psCount.map(({ genre, count }) => ({
+        genre,
+        players: count,
+      }))
+    : [];
 
   console.log("Loading stats:", stats);
   useEffect(() => {
@@ -135,18 +96,37 @@ const GameAnalyticsPlatform = () => {
       getXboxCount(),
       getXboxGameCount(),
       twitterCount(),
+      popularYtTags(),
     ])
-      .then(([psCount, psGameCount, xboxCount, xboxGameCount, twitter]) => {
-        setStats({
-          psCount: psCount,
-          psGameCount: psGameCount,
-          xboxCount: xboxCount,
-          xboxGameCount: xboxGameCount,
-          twitterCount: twitter,
-        });
-        console.log("All queries loaded successfully");
-        setLoading(false);
-      })
+      .then(
+        ([
+          psCount,
+          psGameCount,
+          xboxCount,
+          xboxGameCount,
+          twitterCount,
+          popularYtTags,
+        ]) => {
+          setStats({
+            psCount: psCount,
+            psGameCount: psGameCount,
+            xboxCount: xboxCount,
+            xboxGameCount: xboxGameCount,
+            twitterCount: twitterCount,
+            ytTagCount: popularYtTags,
+          });
+          console.log("Stats loaded:", {
+            psCount,
+            psGameCount,
+            xboxCount,
+            xboxGameCount,
+            twitterCount,
+            popularYtTags,
+          });
+          console.log("All queries loaded successfully");
+          setLoading(false);
+        },
+      )
       .catch((error) => {
         console.error("Error fetching data:", error);
         setLoading(false);
@@ -184,9 +164,44 @@ const GameAnalyticsPlatform = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mb-20">
           {[
-            { label: "Active Games Tracked", value: "50,000+", icon: Gamepad2 },
-            { label: "Data Points Daily", value: "1B+", icon: TrendingUp },
-            { label: "Gaming Studios", value: "2,500+", icon: Users },
+            {
+              label: "Active Games Tracked",
+              value: (
+                (Array.isArray(stats.psGameCount)
+                  ? stats.psGameCount.length
+                  : 0) +
+                (Array.isArray(stats.xboxGameCount)
+                  ? stats.xboxGameCount.length
+                  : 0)
+              ).toLocaleString(),
+              icon: Gamepad2,
+            },
+            {
+              label: "Data Points Daily",
+              value: (
+                (Array.isArray(stats.psCount)
+                  ? stats.psCount.reduce(
+                      (acc, row) => acc + (row.count ?? 0),
+                      0,
+                    )
+                  : 0) +
+                (Array.isArray(stats.xboxCount)
+                  ? stats.xboxCount.reduce(
+                      (acc, row) => acc + (row.count ?? 0),
+                      0,
+                    )
+                  : 0)
+              ).toLocaleString(),
+              icon: TrendingUp,
+            },
+            {
+              label: "Top YouTube Tag",
+              value:
+                Array.isArray(stats.ytTagCount) && stats.ytTagCount.length > 0
+                  ? `${stats.ytTagCount[0].tag} (${stats.ytTagCount[0].count})`
+                  : "-",
+              icon: Star,
+            },
           ].map((stat, index) => (
             <div key={index} className="text-center group">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -209,59 +224,57 @@ const GameAnalyticsPlatform = () => {
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
             <Platforms stats={stats} />
-            {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mx-auto max-w-7xl">
               <StatCard
                 icon={Users}
                 title="Total Active Players"
-                value="1.58M"
+                value={[
+                  ...(Array.isArray(stats.psCount) ? stats.psCount : []),
+                  ...(Array.isArray(stats.xboxCount) ? stats.xboxCount : []),
+                ]
+                  .reduce((acc, row) => acc + (row.count ?? 0), 0)
+                  .toLocaleString()}
                 change={12.5}
-                description="Active players across all platforms"
+                description="Active players across PlayStation and Xbox (top genres only)"
               />
               <StatCard
                 icon={DollarSign}
-                title="Revenue This Month"
-                value="$45.2M"
+                title="Top YouTube Tag"
+                value={
+                  stats.ytTagCount?.[0]?.tag
+                    ? `${stats.ytTagCount[0].tag} (${stats.ytTagCount[0].count})`
+                    : "-"
+                }
                 change={8.3}
-                description="Total gaming revenue generated"
+                description="Most used tag on trending YouTube videos"
               />
               <StatCard
                 icon={Gamepad2}
-                title="Games Tracked"
-                value="2,847"
+                title="Most Popular Game"
+                value={stats.psGameCount?.[0]?.gameTitle || "-"}
                 change={5.7}
-                description="Games monitored across platforms"
+                description="Top PlayStation game by player count"
               />
               <StatCard
                 icon={Star}
-                title="Avg. Rating"
-                value="4.3"
+                title="Top Twitter Topic"
+                value={stats.twitterCount?.[0]?.topic || "-"}
                 change={2.1}
-                description="Average user rating score"
+                description="Most common Twitter topic"
               />
             </div>
+
             <Charts
-              trends={mockData.platformTrends}
-              distribution={platformDistribution}
-              users={mockData.dailyUsers}
-              genre={mockData.genreData}
+              trends={trends}
+              distribution={distribution}
+              users={users}
+              genre={genre}
             />
           </TabsContent>
 
           <TabsContent value="explorer" className="space-y-4">
-            <Dashboard
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              selectedPlatform={selectedPlatform}
-              setSelectedPlatform={setSelectedPlatform}
-              selectedGenre={selectedGenre}
-              setSelectedGenre={setSelectedGenre}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              sortOrder={sortOrder}
-              setSortOrder={setSortOrder}
-              stats={stats}
-            />
+            <Dashboard stats={stats} />
           </TabsContent>
         </Tabs>
       </div>

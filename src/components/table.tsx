@@ -1,92 +1,139 @@
-import React from "react";
-import { Badge } from "@/components/ui/badge";
+// components/DataTable.tsx
+"use client";
+import * as React from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+  ColumnDef,
+} from "@tanstack/react-table";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Star } from "lucide-react";
-import { Game } from "@/types";
+  psCountColumns,
+  psGameCountColumns,
+  xboxCountColumns,
+  xboxGameCountColumns,
+  twitterCountColumns,
+  youtubeCountColumns,
+} from "@/data/columns";
 
-interface TableDataProps {
-  filteredGames: Game[];
+interface DataTableProps<TData> {
+  data: TData[];
+  columns: ColumnDef<TData, any>[];
+  title?: string;
 }
 
-const TableData = ({ filteredGames }: TableDataProps) => {
+function DataTable<TData>({ data, columns, title }: DataTableProps<TData>) {
+  const [sorting, setSorting] = React.useState([]);
+  const table = useReactTable({
+    data,
+    columns,
+    state: { sorting },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  });
+
   return (
-    <>
-      {/* Results Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Game Analytics Results</CardTitle>
-          <CardDescription>
-            Showing {filteredGames.length} games based on your filters
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Game</TableHead>
-                <TableHead>Genre</TableHead>
-                <TableHead>Steam</TableHead>
-                <TableHead>PlayStation</TableHead>
-                <TableHead>Xbox</TableHead>
-                <TableHead>Total Players</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Revenue</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredGames.map((game, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{game.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{game.genre}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    {game.Steam > 0 ? game.Steam.toLocaleString() : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {game.PlayStation > 0
-                      ? game.PlayStation.toLocaleString()
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {game.Xbox > 0 ? game.Xbox.toLocaleString() : "-"}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {(
-                      game.Steam +
-                      game.PlayStation +
-                      game.Xbox
-                    ).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      {game.rating}
-                    </div>
-                  </TableCell>
-                  <TableCell>${game.revenue.toLocaleString()}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </>
+    <div className="mb-8">
+      {title && <h2 className="text-2xl font-bold mb-2">{title}</h2>}
+      <div className="overflow-x-auto border rounded-lg">
+        <table className="min-w-full text-left">
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    onClick={header.column.getToggleSortingHandler()}
+                    className="p-2 cursor-pointer hover:underline"
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                    {header.column.getIsSorted() === "asc"
+                      ? " ↑"
+                      : header.column.getIsSorted() === "desc"
+                        ? " ↓"
+                        : ""}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="border-t hover:bg-gray-50">
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="p-2">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {data.length === 0 && (
+          <div className="p-4 text-center text-gray-400">No data found.</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export const PlayStationTables = ({ psCount, psGameCount }) => {
+  return (
+    <div className="space-y-10">
+      <DataTable
+        data={psCount}
+        columns={psCountColumns}
+        title="PlayStation: Top Genres"
+      />
+      <DataTable
+        data={psGameCount}
+        columns={psGameCountColumns}
+        title="PlayStation: Top Games"
+      />
+    </div>
   );
 };
 
-export default TableData;
+export const TwitterTable = ({ twitterCount }) => {
+  return (
+    <DataTable
+      data={twitterCount}
+      columns={twitterCountColumns}
+      title="Twitter: Topics & Predictions"
+    />
+  );
+};
+
+export const XboxTables = ({ xboxCount, xboxGameCount }) => {
+  return (
+    <div className="space-y-10">
+      <DataTable
+        data={xboxCount}
+        columns={xboxCountColumns}
+        title="Xbox: Top Genres"
+      />
+      <DataTable
+        data={xboxGameCount}
+        columns={xboxGameCountColumns}
+        title="Xbox: Top Games"
+      />
+    </div>
+  );
+};
+
+export const YoutubeTable = ({ youtubeTag }) => {
+  return (
+    <div className="space-y-10">
+      <DataTable
+        data={youtubeTag}
+        columns={youtubeCountColumns}
+        title="Youtube: Top Tags"
+      />
+    </div>
+  );
+};

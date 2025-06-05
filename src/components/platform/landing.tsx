@@ -17,7 +17,6 @@ interface LandingProps {
     | "ghost"
     | "playstation"
     | "xbox"
-    | "steam"
     | null
     | undefined;
 }
